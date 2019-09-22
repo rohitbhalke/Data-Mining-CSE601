@@ -123,7 +123,7 @@ def main(filePath, supportPercentage):
         print(key,len(most_frequent_itemsets[key]),most_frequent_itemsets[key])
 
 
-filePath = "/Users/rohit/Documents/Study/Data Mining/Project1/part2/associationruletestdata.txt"
+filePath = "associationruletestdata.txt"
 
 for supportPercentage in [30,40,50,60,70]:
     print("Most_Frequent_Attribute_Sets for Support : ", supportPercentage)
