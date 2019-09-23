@@ -100,6 +100,7 @@ def generateItemSets(dataList, support, originalDataSet):
     K = 1
     frequent_itemsets = getInitialFrequentAttributeSet(dataList, support, K)
     frequency_previous_frequent_itemsets = len(frequent_itemsets)
+    most_frequent_itemsets[K] =  frequent_itemsets
 
     while frequency_previous_frequent_itemsets > 0 :
         K = K + 1
@@ -123,8 +124,8 @@ def main(filePath, supportPercentage):
         print(key,len(most_frequent_itemsets[key]),most_frequent_itemsets[key])
 
 
-filePath = "associationruletestdata.txt"
+filePath = "/Users/rohit/Documents/Study/Data Mining/Project1/part2/associationruletestdata.txt"
 
-for supportPercentage in [30,40,50,60,70]:
+for supportPercentage in [60,70]:
     print("Most_Frequent_Attribute_Sets for Support : ", supportPercentage)
     main(filePath, supportPercentage)
