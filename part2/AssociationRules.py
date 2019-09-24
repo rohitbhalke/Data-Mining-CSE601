@@ -170,7 +170,7 @@ def generateRules(most_frequent_itemsets, support_Map, confidence):
         first = ",".join(item[0])
         second =  ",".join(item[1])
         output = first + "->"+second
-        #print(output)
+        print(output)
 
 
         if not output in generated:
@@ -184,7 +184,6 @@ def generateRules(most_frequent_itemsets, support_Map, confidence):
 
 
 def main(filePath, supportPercentage):
-    filePath = "/Users/rohit/Documents/Study/Data Mining/Project1/part2/associationruletestdata.txt"
     dataset = readFile(filePath)
     support = (supportPercentage*len(dataset))/100
     mergedDataSetInSingleList =  np.concatenate(dataset, axis=0)       # Merge array of array in single array
@@ -199,8 +198,10 @@ def main(filePath, supportPercentage):
     print(len(rules))
 
 
-filePath = "/Users/rohit/Documents/Study/Data Mining/Project1/part2/associationruletestdata.txt"
+filePath = "associationruletestdata.txt"
 
-for supportPercentage in [50,60,70]:
+for supportPercentage in [50]:
     print("Most_Frequent_Attribute_Sets for Support : ", supportPercentage)
     main(filePath, supportPercentage)
+
+

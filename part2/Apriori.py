@@ -115,7 +115,7 @@ def generateItemSets(dataList, support, originalDataSet):
 
 
 def main(filePath, supportPercentage):
-    filePath = "/Users/rohit/Documents/Study/Data Mining/Project1/part2/associationruletestdata.txt"
+
     dataset = readFile(filePath)
     support = (supportPercentage*len(dataset))/100
     mergedDataSetInSingleList =  np.concatenate(dataset, axis=0)       # Merge array of array in single array
@@ -124,7 +124,7 @@ def main(filePath, supportPercentage):
         print(key,len(most_frequent_itemsets[key]),most_frequent_itemsets[key])
 
 
-filePath = "/Users/rohit/Documents/Study/Data Mining/Project1/part2/associationruletestdata.txt"
+filePath = "associationruletestdata.txt"
 
 for supportPercentage in [60,70]:
     print("Most_Frequent_Attribute_Sets for Support : ", supportPercentage)
