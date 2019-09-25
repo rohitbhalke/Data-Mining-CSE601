@@ -193,3 +193,4 @@ if __name__ == '__main__':
         print("Most_Frequent_Attribute_Sets for Support : ", supportPercentage)
         association_rules = assoc_rule_generator.main(filePath, supportPercentage)
         print(len(association_rules))
+
