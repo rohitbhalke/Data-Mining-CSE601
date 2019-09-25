@@ -133,7 +133,7 @@ def template_2_queries(rules):
 def template_2_queries_find_rules(result, item, rules):
     query_param = item.split(" ")
     key = query_param[0]
-    req_count = query_param[1]
+    req_count = int(query_param[1])
     for rule in rules:
         head_count = (len(rule[0]))
         tail_count = (len(rule[1]))
