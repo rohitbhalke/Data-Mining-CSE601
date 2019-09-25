@@ -150,7 +150,7 @@ class AssociationRuleGenerator:
 
                     for candidate in subsets:
                         candidate_Str = ','.join(candidate)
-                        if support_Map[candidate_Str] / support_Map[item] >= confidence:
+                        if support_Map[item] / support_Map[candidate_Str] >= confidence:
                             head = candidate
                             body = list(set(item_List) - set(candidate))
                             rule = []

@@ -1,4 +1,4 @@
-from part2.AssociationRules import AssociationRuleGenerator as rule_gen
+from AssociationRules import AssociationRuleGenerator as rule_gen
 
 def readFile(path):
     data = []
@@ -30,7 +30,7 @@ def template_1_queries(rules):
                 second = ",".join(rule[1])
                 output = "{" + first + "->" + second + "}"
                 f.write("\n" + output)
-                print(output)
+                #print(output)
             line = fp.readline()
     f.close()
 
@@ -88,25 +88,26 @@ def template_1_queries_find_rules(rule_list_result, line, rules):
     if list[1].isnumeric():
         if list[0] == "RULE":
             for r in rules:
-                head = str(r[0])[2:len(str(r[0])) - 2]
-                body = str(r[1])[2:len(str(r[1])) - 2]
-                if (len(set(r[0]).intersection(set(item_list))) >= int(list[1])) or (
-                        len(set(r[1]).intersection(set(item_list))) >= int(list[1])):
+                mergeList = r[0] + r[1]
+                common_elements = set(mergeList) & set(item_list)
+                length = len(common_elements)
+                if length == int(list[1]):
                     rule_list_result.append(r)
 
         if list[0] == "HEAD":
             for r in rules:
-                head = str(r[0])[2:len(str(r[0])) - 2]
-                body = str(r[1])[2:len(str(r[1])) - 2]
-                if len(set(r[0]).intersection(set(item_list))) >= int(list[1]):
+                common_elements = set(r[0]) & set(item_list)
+                length = len(common_elements)
+                if length == int(list[1]):
                     rule_list_result.append(r)
 
         if list[0] == "BODY":
             for r in rules:
-                head = str(r[0])[2:len(str(r[0])) - 2]
-                body = str(r[1])[2:len(str(r[1])) - 2]
-                if len(set(r[1]).intersection(set(item_list))) >= int(list[1]):
+                common_elements = set(r[1]) & set(item_list)
+                length = len(common_elements)
+                if length == int(list[1]):
                     rule_list_result.append(r)
+
     return rule_list_result
 
 def template_2_queries(rules):
@@ -125,7 +126,7 @@ def template_2_queries(rules):
             first = ",".join(rule[0])
             second = ",".join(rule[1])
             output = "{" + first + "->" + second + "}"
-            print(output)
+            #print(output)
             f.write("\n" + output)
     f.close()
 
@@ -134,14 +135,14 @@ def template_2_queries_find_rules(result, item, rules):
     key = query_param[0]
     req_count = query_param[1]
     for rule in rules:
-        head_count = str(len(rule[0]))
-        tail_count = str(len(rule[1]))
+        head_count = (len(rule[0]))
+        tail_count = (len(rule[1]))
         rule_count = head_count + tail_count
-        if (key == "RULE") and (rule_count == req_count):
+        if (key == "RULE") and (rule_count >= req_count):
             result.append(rule)
-        elif (key == "HEAD") and (head_count == req_count):
+        elif (key == "HEAD") and (head_count >= req_count):
             result.append(rule)
-        elif (key == "BODY") and (tail_count == req_count):
+        elif (key == "BODY") and (tail_count >= req_count):
             result.append(rule)
         else:
             pass
@@ -200,13 +201,16 @@ def template_3_queries(rules):
 
         f.write("\nQuery: " + item)
 
+        print("---------------")
         print("Query: " + item)
-        f.write("\nNumber of rules: " + str(len(result)))
+        print("Number of rules " + str(len(result)))
+        print("---------------\n")
+        f.write("\nNumber of rules " + str(len(result)))
         for rule in result:
             first = ",".join(rule[0])
             second = ",".join(rule[1])
             output = "{" + first + "->" + second + "}"
-            print(output)
+            #print(output)
             f.write("\n" + output)
     f.close()
 
