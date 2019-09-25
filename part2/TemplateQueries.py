@@ -213,7 +213,7 @@ def template_3_queries(rules):
 
 if __name__ == '__main__':
     filePath = "associationruletestdata.txt"
-    association_rules = rule_gen.main(filePath,60)
+    association_rules = rule_gen.main(filePath,50)
     print("----Template 1----")
     template_1_queries(association_rules)
     print("----Template 2----")
