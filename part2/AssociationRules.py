@@ -18,12 +18,10 @@ class AssociationRuleGenerator:
         with open(path) as fp:
             line = fp.readline()
             while line:
-                # print(line)
                 list = line.replace("\n", "").split("\t")
                 formattedData = assoc_rule_generator.formatData(list)
                 data.append(formattedData)
                 line = fp.readline()
-        # print(data)
         return data
 
     def getInitialFrequentAttributeSet(self, data, support, K, support_Map):
@@ -76,7 +74,6 @@ class AssociationRuleGenerator:
                     combination = []
                     first_itemsets = frequent_itemsets[i]
                     second_itemsets = frequent_itemsets[j]
-                    # print(first_itemsets, second_itemsets)
                     # check whether the K-2 elements are same or not, if yes then only create a new frequent itemset
                     for itr in range(0, K - 2):
                         considerItemSet = True
@@ -126,14 +123,8 @@ class AssociationRuleGenerator:
                 temp = []
                 for attb in tuple:
                     temp.append(attb)
-                # temp = np.array(temp)
-                subsets.append(temp)
-            # print(result)
 
-        # for s in subsets:
-        #     print(s)
-        # subsets = np.array(subsets)
-        # subsets = np.unique(subsets, axis=0)
+                subsets.append(temp)
         return subsets
 
     # generate rules
@@ -151,8 +142,8 @@ class AssociationRuleGenerator:
                     for candidate in subsets:
                         candidate_Str = ','.join(candidate)
                         if support_Map[item] / support_Map[candidate_Str] >= confidence:
-                            head = list(set(item_List) - set(candidate))
-                            body = candidate
+                            head = candidate
+                            body = list(set(item_List) - set(candidate))
                             rule = []
                             rule.append(head)
                             rule.append(body)
@@ -173,7 +164,7 @@ class AssociationRuleGenerator:
         return filtered
 
     @staticmethod
-    def main(filePath, supportPercentage):
+    def main(filePath, supportPercentage, confidence):
         dataset = assoc_rule_generator.readFile(filePath)
         support = (supportPercentage * len(dataset)) / 100
         mergedDataSetInSingleList = np.concatenate(dataset, axis=0)  # Merge array of array in single array
@@ -193,4 +184,3 @@ if __name__ == '__main__':
         print("Most_Frequent_Attribute_Sets for Support : ", supportPercentage)
         association_rules = assoc_rule_generator.main(filePath, supportPercentage)
         print(len(association_rules))
-
