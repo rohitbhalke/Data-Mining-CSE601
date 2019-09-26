@@ -18,7 +18,7 @@ pip install numpy
 
 ### How to change configuration ?
 
-The **config.properties** file contains the properties such as support and confidence required for the
+The **config.properties** file contains the properties such as ***support*** and ***confidence*** required for the
 association rules generation.
 
 ### Input Files
