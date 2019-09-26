@@ -31,8 +31,8 @@ Number of rules: 117
 Queries for template 3
 Query: 1or1 HEAD ANY [G10_Down] BODY 1 [G59_Up]
 Number of rules 24
-Query: 1and1 HEAD ANY [G10_Down] BODY 1 [G59_UP]
-Number of rules 0
+Query: 1and1 HEAD ANY [G10_Down] BODY 1 [G59_Up]
+Number of rules 1
 Query: 1or2 HEAD ANY [G10_Down] BODY 2
 Number of rules 11
 Query: 1and2 HEAD ANY [G10_Down] BODY 2

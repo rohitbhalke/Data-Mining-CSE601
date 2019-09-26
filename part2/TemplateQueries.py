@@ -197,7 +197,7 @@ def template_3_queries(rules):
         print("---------------\n")
         f.write("\nNumber of rules " + str(len(result)))
 
-        #printQureyResult(result)
+        printQureyResult(result)
 
     f.close()
 
