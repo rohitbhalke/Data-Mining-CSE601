@@ -186,8 +186,12 @@ def template_3_queries(rules):
                     result.append(rule)
         else:
             for rule in result_1:
-                if rule in result_2:
-                    result.append(rule)
+                rule_str1 = ",".join(rule[0]) + "," +",".join(rule[1])
+                for rule2 in result_2:
+                    rule_str2 = ",".join(rule2[0]) + "," + ",".join(rule2[1])
+                    if rule_str1 == rule_str2:
+                        result.append(rule)
+                        break
 
         f.write("\nQuery: " + item)
 
@@ -197,7 +201,7 @@ def template_3_queries(rules):
         print("---------------\n")
         f.write("\nNumber of rules " + str(len(result)))
 
-        printQureyResult(result)
+        #printQureyResult(result)
 
     f.close()
 
