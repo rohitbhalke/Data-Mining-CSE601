@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 from Node import Node as Node
-
+from PerformanceMetrics import MetricsCalculator
 
 class DecisionTree:
 
@@ -26,7 +26,7 @@ class DecisionTree:
         test_data = data[no_of_records:]
         return train_data, test_data
 
-    def get_gini_index_for_parent(self, data):
+    def get_gini_index(self, data):
         # find from data, how many are 1's and 0's,
         # last index is the prediction value
         total_records = data.shape[0]
@@ -82,8 +82,8 @@ class DecisionTree:
 
         for val in attribute_values:
             less_than_data, great_than_data = self.categorise_data(data, val, attribute_index)
-            gini_index_lesser_values = self.get_gini_index_for_parent(less_than_data)
-            gini_index_great_values = self.get_gini_index_for_parent(great_than_data)
+            gini_index_lesser_values = self.get_gini_index(less_than_data)
+            gini_index_great_values = self.get_gini_index(great_than_data)
 
             gini_children = less_than_data.shape[0] * gini_index_lesser_values + great_than_data.shape[0] *  gini_index_great_values
             gini_gain = gini_index_dataset - gini_children
@@ -122,8 +122,8 @@ class DecisionTree:
             return leaf_node
 
 
-        gini_index_dataset = self.get_gini_index_for_parent(train_data)
-        # print("gini_index : ", gini_index_dataset)
+        gini_index_dataset = self.get_gini_index(train_data)
+        print("gini_index : ", gini_index_dataset)
 
         if gini_index_dataset == 0.0:
             leaf_node = Node(None, None)
@@ -145,14 +145,16 @@ class DecisionTree:
         # add left subtree
         # add right subtree
         root = Node(best_attribute_index, best_attribute_value)
-        self.attribute_indexex.append(best_attribute_index)
+        #self.attribute_indexex.append(best_attribute_index)
 
         less_than_data, great_than_data = self.categorise_data(train_data, best_attribute_value, best_attribute_index)
         root.left = self.create_decision_tree(less_than_data)
         if len(self.attribute_indexex) > 0:
+            print("Popping 1")
             self.attribute_indexex.pop()
         root.right = self.create_decision_tree(great_than_data)
         if len(self.attribute_indexex) > 0:
+            print("Popping 2")
             self.attribute_indexex.pop()
 
         return root
@@ -175,18 +177,6 @@ class DecisionTree:
             res = self.predict_output(root, record)
             predictions.append(res)
         return predictions
-
-    def calculate_accuracy(self, test_data, predicted_values):
-        prediction_value_index = test_data.shape[1] - 1
-        correct_predictions = 0
-
-        for i in range(0, len(predicted_values)):
-            if int(test_data[i][prediction_value_index]) == predicted_values[i]:
-                correct_predictions += 1
-
-        accuracy = (correct_predictions/len(predicted_values))*100
-        print("Accuracy: ",  accuracy)
-
 
     def convert_values_to_floats(self, data, index):
         attribute_values = data[:, index]
@@ -230,7 +220,17 @@ class DecisionTree:
         print("Here")
 
         predicted_values = self.predict_test_output(root, test_data)
-        self.calculate_accuracy(test_data, predicted_values)
+
+
+        metrics = MetricsCalculator()
+        accuracy = metrics.calculate_accuracy(test_data, predicted_values)
+        print("Accuracy is: ", accuracy)
+        precision = metrics.calculate_precision(test_data, predicted_values)
+        print("Precision is : ", precision)
+        recall = metrics.calculate_recall(test_data, predicted_values)
+        print("Recall is : ", recall)
+        f1_score = metrics.calculate_F1_score(precision, recall)
+        print("F1 Score is: ", f1_score)
 
 
 def main():
