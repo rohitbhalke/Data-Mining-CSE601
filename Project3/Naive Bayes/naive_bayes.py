@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 import math
-from Project3.Utils.metric_calculator import MetricCalculator as metric_calculator
+from Project3.PerformanceMetrics import MetricsCalculator
 
 
 class NaiveBayesClassifier:
@@ -126,7 +126,7 @@ class NaiveBayesClassifier:
                 if best_label is None or probability > best_prob:
                     best_prob = probability
                     best_label = class_value
-            predictions.append(best_label)
+            predictions.append(int(best_label))
         return predictions
 
     def classify(self, train_data, test_data):
@@ -139,6 +139,7 @@ class NaiveBayesClassifier:
         data = self.preprocess(data)
         train_data_split, test_data_split = self.divide_data(data)
         predicted_labels = self.classify(train_data_split,test_data_split)
+        metric_calculator = MetricsCalculator()
         accuracy = metric_calculator.calculate_accuracy(test_data_split, predicted_labels)
         print("Accuracy: " + str(accuracy))
 
