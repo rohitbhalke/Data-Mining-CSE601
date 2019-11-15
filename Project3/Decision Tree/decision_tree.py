@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 from Node import Node as Node
+from Project3.Utils.metric_calculator import MetricCalculator as metric_calculato
 
 
 class DecisionTree:
@@ -176,18 +177,6 @@ class DecisionTree:
             predictions.append(res)
         return predictions
 
-    def calculate_accuracy(self, test_data, predicted_values):
-        prediction_value_index = test_data.shape[1] - 1
-        correct_predictions = 0
-
-        for i in range(0, len(predicted_values)):
-            if int(test_data[i][prediction_value_index]) == predicted_values[i]:
-                correct_predictions += 1
-
-        accuracy = (correct_predictions/len(predicted_values))*100
-        print("Accuracy: ",  accuracy)
-
-
     def convert_values_to_floats(self, data, index):
         attribute_values = data[:, index]
         attribute_values = set(attribute_values)  # got unique values
@@ -230,12 +219,13 @@ class DecisionTree:
         print("Here")
 
         predicted_values = self.predict_test_output(root, test_data)
-        self.calculate_accuracy(test_data, predicted_values)
+        accuracy = metric_calculato.calculate_accuracy(test_data, predicted_values)
+        print("Accuracy: " + str(accuracy))
 
 
 def main():
     dt = DecisionTree()
-    data = dt.read_file("../Data/project3_dataset1.txt")
+    data = dt.read_file("../Data/project3_dataset2.txt")
     dt.process(data)
     print("HERE")
 
