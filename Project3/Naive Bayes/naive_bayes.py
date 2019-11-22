@@ -1,7 +1,8 @@
 import numpy as np
 import sys
 import math
-from Project3.PerformanceMetrics import MetricsCalculator
+from PerformanceMetrics import MetricsCalculator
+import json
 
 
 class NaiveBayesClassifier:
@@ -53,7 +54,7 @@ class NaiveBayesClassifier:
         return data
 
     def divide_data(self, data):
-        train_data_percent = 70
+        train_data_percent = self.config['training_percentage']
         no_of_records = int(data.shape[0] * (train_data_percent / 100))
         train_data = data[0:no_of_records]
         test_data = data[no_of_records:]
@@ -142,10 +143,19 @@ class NaiveBayesClassifier:
         metric_calculator = MetricsCalculator()
         accuracy = metric_calculator.calculate_accuracy(test_data_split, predicted_labels)
         print("Accuracy: " + str(accuracy))
+        precision = metric_calculator.calculate_precision(test_data_split, predicted_labels)
+        print("Precision: ", precision)
+        recall = metric_calculator.calculate_recall(test_data_split, predicted_labels)
+        print("Recall: ", recall)
+        f1_score = metric_calculator.calculate_F1_score(precision, recall)
+        print("F1 Score: ", f1_score)
 
 def main():
     nb_classifier = NaiveBayesClassifier()
-    data = nb_classifier.read_file("../Data/project3_dataset1.txt")
+    with open('nb_config.json', 'r') as f:
+        config = json.load(f)
+    nb_classifier.config = config
+    data = nb_classifier.read_file(nb_classifier.config['input_file'])
     nb_classifier.process(data)
 
 if __name__ == '__main__':

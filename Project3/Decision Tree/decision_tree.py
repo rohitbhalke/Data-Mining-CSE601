@@ -2,6 +2,7 @@ import numpy as np
 import sys
 from Node import Node as Node
 from PerformanceMetrics import MetricsCalculator
+import json
 
 class DecisionTree:
 
@@ -20,7 +21,7 @@ class DecisionTree:
         return data
 
     def divide_data(self, data):
-        train_data_percent = 70
+        train_data_percent = self.config['training_percentage']
         no_of_records = int(data.shape[0] * (train_data_percent/100))
         train_data = data[0:no_of_records]
         test_data = data[no_of_records:]
@@ -138,6 +139,16 @@ class DecisionTree:
 
         best_attribute_index, best_attribute_value = self.find_best_attribute(train_data, gini_index_dataset)
 
+        if best_attribute_value == -1:
+            leaf_node = Node(None, None)
+            leaf_node.leaf_node = True
+            ones, zeroes = self.get_positives_negatives_count(train_data)
+            if ones >= zeroes:
+                leaf_node.prediction = 1
+            else:
+                leaf_node.prediction = 0
+            return leaf_node
+
         # create a tree node now
         # attribute_index = best_attribute_index
         # attribute_value = best_attribute_value
@@ -145,22 +156,21 @@ class DecisionTree:
         # add left subtree
         # add right subtree
         root = Node(best_attribute_index, best_attribute_value)
-        #self.attribute_indexex.append(best_attribute_index)
+        self.attribute_indexex.append(best_attribute_index)
 
         less_than_data, great_than_data = self.categorise_data(train_data, best_attribute_value, best_attribute_index)
         root.left = self.create_decision_tree(less_than_data)
-        if len(self.attribute_indexex) > 0:
-            print("Popping 1")
-            self.attribute_indexex.pop()
+        # if len(self.attribute_indexex) > 0:
+        #     print("Popping 1")
+        #     self.attribute_indexex.pop()
         root.right = self.create_decision_tree(great_than_data)
-        if len(self.attribute_indexex) > 0:
-            print("Popping 2")
-            self.attribute_indexex.pop()
+        # if len(self.attribute_indexex) > 0:
+        #     print("Popping 2")
+        #     self.attribute_indexex.pop()
 
         return root
 
     def predict_output(self, root, record):
-        print("inside")
         if root.leaf_node == True:
             return root.prediction
 
@@ -221,22 +231,24 @@ class DecisionTree:
 
         predicted_values = self.predict_test_output(root, test_data)
 
-        metrics = MetricsCalculator()
-        accuracy = metrics.calculate_accuracy(test_data, predicted_values)
-        print("Accuracy is: ", accuracy)
-        precision = metrics.calculate_precision(test_data, predicted_values)
-        print("Precision is : ", precision)
-        recall = metrics.calculate_recall(test_data, predicted_values)
-        print("Recall is : ", recall)
-        f1_score = metrics.calculate_F1_score(precision, recall)
-        print("F1 Score is: ", f1_score)
+        metric_calculator = MetricsCalculator()
+        accuracy = metric_calculator.calculate_accuracy(test_data, predicted_values)
+        print("Accuracy: ", accuracy)
+        precision = metric_calculator.calculate_precision(test_data, predicted_values)
+        print("Precision: ", precision)
+        recall = metric_calculator.calculate_recall(test_data, predicted_values)
+        print("Recall: ", recall)
+        f1_score = metric_calculator.calculate_F1_score(precision, recall)
+        print("F1 Score: ", f1_score)
 
 
 def main():
-    dt = DecisionTree()
-    data = dt.read_file("../Data/project3_dataset2.txt")
-    dt.process(data)
-    print("HERE")
+    dt_classifier = DecisionTree()
+    with open('dt_config.json', 'r') as f:
+        config = json.load(f)
+    dt_classifier.config = config
+    data = dt_classifier.read_file(dt_classifier.config['input_file'])
+    dt_classifier.process(data)
 
 if __name__ == '__main__':
     main()

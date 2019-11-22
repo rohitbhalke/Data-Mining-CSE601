@@ -1,0 +1,4 @@
+{
+  "training_percentage" : 90,
+  "input_file" : "../Data/project3_dataset1.txt"
+}
