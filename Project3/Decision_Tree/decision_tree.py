@@ -8,6 +8,7 @@ class DecisionTree:
 
     def __init__(self):
         self.attribute_indexex = []
+        self.COUNT = 10
 
     def read_file(self, path):
         data = []
@@ -124,7 +125,7 @@ class DecisionTree:
 
 
         gini_index_dataset = self.get_gini_index(train_data)
-        print("gini_index : ", gini_index_dataset)
+        # print("gini_index : ", gini_index_dataset)
 
         if gini_index_dataset == 0.0:
             leaf_node = Node(None, None)
@@ -223,11 +224,37 @@ class DecisionTree:
 
         return data
 
+    def print_tree_util(self, root, space):
+        if root is None:
+            return
+
+        space += self.COUNT
+        self.print_tree_util(root.right, space)
+
+        print()
+
+        for i in range(self.COUNT, space):
+            print(end=" ")
+
+        if root.leaf_node == True:
+            print(root.prediction)
+        else:
+            print(str(root.attribute_index) + "<=" + str(round(root.attribute_value, 2)))
+
+        self.print_tree_util(root.left, space)
+
+
+
+    def print_tree(self, root):
+        print("######################## DECISON TREE ########################")
+        self.print_tree_util(root, 0)
+
     def process(self, data):
         data = self.preprocess(data)
         train_data, test_data = self.divide_data(data)
         root = self.create_decision_tree(train_data)
-        print("Here")
+
+        self.print_tree(root)
 
         predicted_values = self.predict_test_output(root, test_data)
 
