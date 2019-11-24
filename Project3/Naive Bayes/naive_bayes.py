@@ -50,15 +50,18 @@ class NaiveBayesClassifier:
         # got all the index attributes which are strings, now convert them to floats
         for index in string_value_indexex:
             data = self.convert_values_to_floats(data, index)
-
         return data
 
-    def divide_data(self, data):
-        train_data_percent = self.config['training_percentage']
-        no_of_records = int(data.shape[0] * (train_data_percent / 100))
-        train_data = data[0:no_of_records]
-        test_data = data[no_of_records:]
-        return train_data, test_data
+    def divide_data(self,data):
+        k = self.config['k_fold_validation']
+        no_of_records = int(data.shape[0] / k)
+        data_split = {}
+        for i in range(0,k-1):
+            start = i*no_of_records
+            end = start + no_of_records
+            data_split[i] = data[start:end]
+        data_split[i+1] = data[end:]
+        return data_split
 
     # first split data by class, dict to store this data
     def split_by_class(self, data):
@@ -137,18 +140,41 @@ class NaiveBayesClassifier:
         return predictions
 
     def process(self, data):
+        k = self.config['k_fold_validation']
         data = self.preprocess(data)
-        train_data_split, test_data_split = self.divide_data(data)
-        predicted_labels = self.classify(train_data_split,test_data_split)
-        metric_calculator = MetricsCalculator()
-        accuracy = metric_calculator.calculate_accuracy(test_data_split, predicted_labels)
-        print("Accuracy: " + str(accuracy))
-        precision = metric_calculator.calculate_precision(test_data_split, predicted_labels)
-        print("Precision: ", precision)
-        recall = metric_calculator.calculate_recall(test_data_split, predicted_labels)
-        print("Recall: ", recall)
+        data_split = self.divide_data(data)
+        train_data = None
+        test_data = None
+        accuracy = 0.0
+        precision = 0.0
+        recall = 0.0
+        f1_score = 0.0
+        for i in range(0,k):
+            test_data = data_split[i]
+            train_data = None
+            for j in range(0,k):
+                if j != i:
+                    if train_data is None:
+                        train_data = data_split[j]
+                    else:
+                        train_data = np.append(train_data,data_split[j], axis=0)
+            predicted_labels = self.classify(train_data,test_data)
+
+            metric_calculator = MetricsCalculator()
+            accuracy += metric_calculator.calculate_accuracy(test_data, predicted_labels)
+            precision += metric_calculator.calculate_precision(test_data, predicted_labels)
+            recall += metric_calculator.calculate_recall(test_data, predicted_labels)
+
+        accuracy = float(accuracy/k)
+        precision = float(precision/k)
+        recall = float(recall/k)
         f1_score = metric_calculator.calculate_F1_score(precision, recall)
-        print("F1 Score: ", f1_score)
+
+        print("Accuracy: " + str(accuracy))
+        print("Precision: " + str(precision))
+        print("Recall: " + str(recall))
+        print("F1 Score: " + str(f1_score))
+
 
 def main():
     nb_classifier = NaiveBayesClassifier()
