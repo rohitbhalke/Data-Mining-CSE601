@@ -126,9 +126,9 @@ class KNNClassifier:
             for cnt in range(self.k):
                 val = neighbors[cnt][1]
                 if val[2] == 0:
-                    class0 = class0 + 1
+                    class0 += (1/(val[0]))
                 else:
-                    class1 = class1 + 1
+                    class1 += (1/(val[0]))
             if class0 > class1:
                 predicted_class_labels.append(0)
             else:
