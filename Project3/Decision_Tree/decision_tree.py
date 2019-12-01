@@ -21,12 +21,23 @@ class DecisionTree:
         data = np.array(data)
         return data
 
-    def divide_data(self, data):
-        train_data_percent = self.config['training_percentage']
-        no_of_records = int(data.shape[0] * (train_data_percent/100))
-        train_data = data[0:no_of_records]
-        test_data = data[no_of_records:]
-        return train_data, test_data
+    # def divide_data(self, data):
+    #     train_data_percent = self.config['training_percentage']
+    #     no_of_records = int(data.shape[0] * (train_data_percent/100))
+    #     train_data = data[0:no_of_records]
+    #     test_data = data[no_of_records:]
+    #     return train_data, test_data
+
+    def divide_data(self,data):
+        k = self.config['k_fold_validation']
+        no_of_records = int(data.shape[0] / k)
+        data_split = {}
+        for i in range(0,k-1):
+            start = i*no_of_records
+            end = start + no_of_records
+            data_split[i] = data[start:end]
+        data_split[i+1] = data[end:]
+        return data_split
 
     def get_gini_index(self, data):
         # find from data, how many are 1's and 0's,
@@ -250,23 +261,57 @@ class DecisionTree:
         self.print_tree_util(root, 0)
 
     def process(self, data):
+        k = self.config['k_fold_validation']
         data = self.preprocess(data)
-        train_data, test_data = self.divide_data(data)
-        root = self.create_decision_tree(train_data)
+        data_split = self.divide_data(data)
 
-        self.print_tree(root)
+        accuracy = 0.0
+        precision = 0.0
+        recall = 0.0
+        f1_score = 0.0
 
-        predicted_values = self.predict_test_output(root, test_data)
 
-        metric_calculator = MetricsCalculator()
-        accuracy = metric_calculator.calculate_accuracy(test_data, predicted_values)
-        print("Accuracy: ", accuracy)
-        precision = metric_calculator.calculate_precision(test_data, predicted_values)
-        print("Precision: ", precision)
-        recall = metric_calculator.calculate_recall(test_data, predicted_values)
-        print("Recall: ", recall)
+        for i in range(0,k):
+            test_data = data_split[i]
+            train_data = None
+            for j in range(0,k):
+                if j != i:
+                    if train_data is None:
+                        train_data = data_split[j]
+                    else:
+                        train_data = np.append(train_data,data_split[j], axis=0)
+            root = self.create_decision_tree(train_data)
+
+            self.print_tree(root)
+
+            predicted_values = self.predict_test_output(root, test_data)
+
+            metric_calculator = MetricsCalculator()
+            accuracy += metric_calculator.calculate_accuracy(test_data, predicted_values)
+            precision += metric_calculator.calculate_precision(test_data, predicted_values)
+            recall += metric_calculator.calculate_recall(test_data, predicted_values)
+            self.attribute_indexex = []
+
+        accuracy = float(accuracy/k)
+        precision = float(precision/k)
+        recall = float(recall/k)
         f1_score = metric_calculator.calculate_F1_score(precision, recall)
-        print("F1 Score: ", f1_score)
+
+        print("Accuracy: " + str(accuracy))
+        print("Precision: " + str(precision))
+        print("Recall: " + str(recall))
+        print("F1 Score: " + str(f1_score))
+
+
+        # metric_calculator = MetricsCalculator()
+        # accuracy = metric_calculator.calculate_accuracy(test_data, predicted_values)
+        # print("Accuracy: ", accuracy)
+        # precision = metric_calculator.calculate_precision(test_data, predicted_values)
+        # print("Precision: ", precision)
+        # recall = metric_calculator.calculate_recall(test_data, predicted_values)
+        # print("Recall: ", recall)
+        # f1_score = metric_calculator.calculate_F1_score(precision, recall)
+        # print("F1 Score: ", f1_score)
 
 
 def main():

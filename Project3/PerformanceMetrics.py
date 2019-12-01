@@ -45,6 +45,12 @@ class MetricsCalculator:
                     matrix[1][1] += 1   #True Negatives
                 else:
                     matrix[1][0] += 1   #False Negatives
+        if matrix[0][0] == 0 or matrix[0][1] == 0 or matrix[1][0] == 0 or matrix[1][1] == 0:
+            matrix[0][0] += 1
+            matrix[0][1] += 1
+            matrix[1][0] += 1
+            matrix[1][1] += 1
+
         self.confusion_metrics = matrix
 
 

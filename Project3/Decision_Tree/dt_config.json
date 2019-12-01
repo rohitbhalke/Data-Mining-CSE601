@@ -1,4 +1,5 @@
 {
   "training_percentage" : 70,
-  "input_file" : "../Data/project3_dataset1.txt"
+  "input_file" : "../Data/project3_dataset2.txt",
+  "k_fold_validation" : 10
 }
