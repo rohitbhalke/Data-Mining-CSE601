@@ -1,4 +1,5 @@
 {
   "k_fold_validation" : 10,
-  "input_file" : "../Data/project3_dataset2.txt"
+  "input_file" : "../Data/project3_dataset4.txt",
+  "demo_train_samples": 14
 }

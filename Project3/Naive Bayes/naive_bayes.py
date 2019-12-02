@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 import math
-from PerformanceMetrics import MetricsCalculator
+from Project3.PerformanceMetrics import MetricsCalculator
 import json
 
 
@@ -95,10 +95,12 @@ class NaiveBayesClassifier:
             rows = np.asarray(rows)
             summaries = {}
             for i in range(0,len(rows[0])):
+                column = rows[:, i:i + 1]
+                column = list(column)
                 if i not in string_value_indexes:
-                    column = rows[:,i:i+1]
-                    column = list(column)
                     summaries[i] = ([(self.mean(column), self.stdev(column), len(column))])
+                else:
+                    summaries[i] = ([(" ", " ", len(column))])
             data_summary[class_value] = summaries
         return data_summary
 
@@ -159,6 +161,10 @@ class NaiveBayesClassifier:
                 else:
                     prob = data_summary_categorical.get(i).get(class_value).get(data_vector[i])
                     probabilities[class_value] *= prob
+        print("----Probability---")
+        print(data_vector)
+        for class_value, prob in probabilities.items():
+            print("Class: " + str(class_value) + " probability: " + str(prob))
         return probabilities
 
     # predict label for given data sample with highest P(Xi|H)*P(H)
@@ -217,6 +223,17 @@ class NaiveBayesClassifier:
         print("Recall: " + str(recall))
         print("F1 Score: " + str(f1_score))
 
+    def process_demo(self, data):
+        train_samples = self.config['demo_train_samples']
+        data, string_value_indexes = self.preprocess(data)
+        train_data = data[0:train_samples, :]
+        test_data = data[train_samples:, :]
+        predicted_labels = self.classify(train_data, test_data, string_value_indexes)
+
+        print("---Predicted Labels---")
+        for item in predicted_labels:
+            print(item)
+
 
 def main():
     nb_classifier = NaiveBayesClassifier()
@@ -224,7 +241,7 @@ def main():
         config = json.load(f)
     nb_classifier.config = config
     data = nb_classifier.read_file(nb_classifier.config['input_file'])
-    nb_classifier.process(data)
-
+    # nb_classifier.process(data)
+    nb_classifier.process_demo(data)
 if __name__ == '__main__':
     main()
