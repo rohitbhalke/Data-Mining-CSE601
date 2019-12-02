@@ -1,7 +1,6 @@
 import json
 import numpy as np
 from PerformanceMetrics import MetricsCalculator
-from scipy.spatial import distance as dist
 
 
 class KNNClassifier:
@@ -65,6 +64,27 @@ class KNNClassifier:
             distance += np.square(float(x1[x]) - float(x2[x]))
         return np.sqrt(distance)
 
+    def classification_demo(self):
+        predicted_labels = []
+        test_data = self.read_file(self.config['test_data_file'])
+        train_data = self.read_file(self.config['train_data_file'])
+        print(test_data)
+        print(train_data)
+
+        predicted_labels = self.classify(test_data, train_data)
+
+        metric_calculator = MetricsCalculator()
+        accuracy = metric_calculator.calculate_accuracy(np.array(test_data), predicted_labels)
+        precision = metric_calculator.calculate_precision(np.array(test_data), predicted_labels)
+        recall = metric_calculator.calculate_recall(np.array(test_data), predicted_labels)
+
+        f1_score = metric_calculator.calculate_F1_score(precision, recall)
+
+        print("Accuracy: " + str(accuracy))
+        print("Precision: " + str(precision))
+        print("Recall: " + str(recall))
+        print("F1 Score: " + str(f1_score))
+
     def process_and_classify_data(self, data):
         rows = len(data)
         cols = len(data[0])
@@ -127,8 +147,10 @@ class KNNClassifier:
                 val = neighbors[cnt][1]
                 if val[2] == 0:
                     class0 += (1/(val[0]))
+                    # class0 += 1
                 else:
                     class1 += (1/(val[0]))
+                    # class1 += 1
             if class0 > class1:
                 predicted_class_labels.append(0)
             else:
@@ -143,8 +165,9 @@ def main():
     knn_classifier.config = config
     knn_classifier.k = knn_classifier.config['k']
     knn_classifier.k_fold = knn_classifier.config['k_fold_validation']
-    data = knn_classifier.read_file(knn_classifier.config['input_file'])
-    knn_classifier.process_and_classify_data(data)
+    knn_classifier.classification_demo()
+    #data = knn_classifier.read_file(knn_classifier.config['input_file'])
+    #knn_classifier.process_and_classify_data(data)
 
 
 if __name__ == '__main__':

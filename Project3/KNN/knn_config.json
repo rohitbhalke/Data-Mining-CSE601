@@ -1,5 +1,7 @@
 {
   "k_fold_validation" : 10,
   "input_file" : "../Data/project3_dataset1.txt",
-  "k" : 15
+  "k" : 15,
+  "test_data_file" : "../Data/project3_dataset3_test.txt",
+  "train_data_file" : "../Data/project3_dataset3_train.txt"
 }
