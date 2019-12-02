@@ -1,5 +1,7 @@
 {
   "training_percentage" : 90,
   "input_file" : "../Data/project3_dataset1.txt",
-  "n_estimators" : 10
+  "n_estimators" : 10,
+   "k_fold_validation" : 10,
+  "features_for_split" : 5
 }
