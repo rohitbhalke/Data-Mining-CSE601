@@ -68,8 +68,6 @@ class KNNClassifier:
         predicted_labels = []
         test_data = self.read_file(self.config['test_data_file'])
         train_data = self.read_file(self.config['train_data_file'])
-        print(test_data)
-        print(train_data)
 
         predicted_labels = self.classify(test_data, train_data)
 
@@ -95,6 +93,12 @@ class KNNClassifier:
         precision = 0.0
         recall = 0.0
         f1_score = 0.0
+
+        accuracy_array = []
+        precision_array = []
+        recall_array = []
+        f1_score_array = []
+
         predicted_labels = []
         metric_calculator = MetricsCalculator()
         for i in range(0, self.k_fold):
@@ -107,19 +111,33 @@ class KNNClassifier:
 
             predicted_labels = self.classify(test_data, train_data)
 
+            accuracy_array.append(metric_calculator.calculate_accuracy(test_data, predicted_labels))
+            precision = metric_calculator.calculate_precision(test_data, predicted_labels)
+            precision_array.append(precision)
+            recall = metric_calculator.calculate_recall(test_data, predicted_labels)
+            recall_array.append(recall)
+            f1_score = metric_calculator.calculate_F1_score(precision, recall)
+            f1_score_array.append(f1_score)
+
             accuracy += metric_calculator.calculate_accuracy(np.array(test_data), predicted_labels)
             precision += metric_calculator.calculate_precision(np.array(test_data), predicted_labels)
             recall += metric_calculator.calculate_recall(np.array(test_data), predicted_labels)
 
-        accuracy = float(accuracy / self.k_fold)
-        precision = float(precision / self.k_fold)
-        recall = float(recall / self.k_fold)
-        f1_score = metric_calculator.calculate_F1_score(precision, recall)
+        accuracy = float(sum(accuracy_array) / self.k_fold)
+        precision = float(sum(precision_array) / self.k_fold)
+        recall = float(sum(recall_array) / self.k_fold)
+        f1_score = float(sum(f1_score_array) / self.k_fold)
 
+        print("K-Fold Accuracies: ", '[%s]' % ', '.join(map(str, accuracy_array)))
+        print("K-Fold Precision: ", '[%s]' % ', '.join(map(str, precision_array)))
+        print("K-Fold Recall: ", '[%s]' % ', '.join(map(str, recall_array)))
+        print("")
         print("Accuracy: " + str(accuracy))
         print("Precision: " + str(precision))
         print("Recall: " + str(recall))
         print("F1 Score: " + str(f1_score))
+
+        metric_calculator.plot_graph(accuracy_array, precision_array, recall_array)
 
     def divide_data(self, data, rows, cols):
         no_of_records = int(rows / self.k_fold)
@@ -166,8 +184,8 @@ def main():
     knn_classifier.k = knn_classifier.config['k']
     knn_classifier.k_fold = knn_classifier.config['k_fold_validation']
     knn_classifier.classification_demo()
-    #data = knn_classifier.read_file(knn_classifier.config['input_file'])
-    #knn_classifier.process_and_classify_data(data)
+    data = knn_classifier.read_file(knn_classifier.config['input_file'])
+    knn_classifier.process_and_classify_data(data)
 
 
 if __name__ == '__main__':
