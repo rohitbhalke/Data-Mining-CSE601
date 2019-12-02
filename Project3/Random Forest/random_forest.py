@@ -26,7 +26,7 @@ class RandomForest(DecisionTree):
         filtered_features = []
 
         # choose sqrt(no_of_features as a subset of attributes)
-        no_of_filtered_features = int(math.sqrt(total_attributes))
+        no_of_filtered_features = self.config['features_for_split']
 
         # find random m attributes/features for each node split
         while len(filtered_features) != no_of_filtered_features:
@@ -151,13 +151,85 @@ class RandomForest(DecisionTree):
         print("F1 Score: ", f1_score)
 
 
+    def process1(self, data):
+        k = self.config['k_fold_validation']
+        data = self.preprocess(data)
+        data_split = self.divide_data(data)
+
+        accuracy = 0.0
+        precision = 0.0
+        recall = 0.0
+        f1_score = 0.0
+
+        accuracy_array = []
+        precision_array = []
+        recall_array = []
+        f1_score_array = []
+
+        no_of_decision_trees = self.config['n_estimators']
+
+
+        # create decision tress with diff nodes
+        for l in range(0, no_of_decision_trees):
+            roots = []
+            for i in range(0, k):
+                test_data = data_split[i]
+                train_data = None
+                for j in range(0, k):
+                    if j != i:
+                        if train_data is None:
+                            train_data = data_split[j]
+                        else:
+                            train_data = np.append(train_data, data_split[j], axis=0)
+
+                root = self.create_decision_tree(train_data)
+                print("Constructed Decision Tree Number: ", i+1)
+                roots.append(root)
+
+            random_forest_predictions = []
+            # find prediction output values for each decision tree
+            for r in range(0, len(roots)):
+                predicted_values = self.predict_test_output(roots[r], test_data)
+                random_forest_predictions.append(predicted_values)
+
+            # Implement ensembler technique (bagging) for finding the final predictions
+            random_forest_predictions = self.bagging_ensemble(random_forest_predictions)
+
+            metric_calculator = MetricsCalculator()
+            accuracy = metric_calculator.calculate_accuracy(test_data, random_forest_predictions)
+            accuracy_array.append(accuracy)
+            precision = metric_calculator.calculate_precision(test_data, random_forest_predictions)
+            precision_array.append(precision)
+            recall = metric_calculator.calculate_recall(test_data, random_forest_predictions)
+            recall_array.append(recall)
+            f1_score = metric_calculator.calculate_F1_score(precision, recall)
+            f1_score_array.append(f1_score)
+
+
+        accuracy = float(sum(accuracy_array) / no_of_decision_trees)
+        precision = float(sum(precision_array) / no_of_decision_trees)
+        recall = float(sum(recall_array) / no_of_decision_trees)
+        f1_score = float(sum(f1_score_array) / no_of_decision_trees)
+
+        print("K-Fold Accuracies: ", '[%s]' % ', '.join(map(str, accuracy_array)))
+        print("K-Fold Precision: ", '[%s]' % ', '.join(map(str, precision_array)))
+        print("K-Fold Recall: ", '[%s]' % ', '.join(map(str, recall_array)))
+        print("")
+        print("Accuracy: " + str(accuracy))
+        print("Precision: " + str(precision))
+        print("Recall: " + str(recall))
+        print("F1 Score: " + str(f1_score))
+
+        metric_calculator.plot_graph(accuracy_array, precision_array, recall_array)
+
+
 def main():
     rf_classifier = RandomForest()
     with open('rf_config.json', 'r') as f:
         config = json.load(f)
     rf_classifier.config = config
     data = rf_classifier.read_file(rf_classifier.config['input_file'])
-    rf_classifier.process(data)
+    rf_classifier.process1(data)
 
 if __name__ == '__main__':
     main()

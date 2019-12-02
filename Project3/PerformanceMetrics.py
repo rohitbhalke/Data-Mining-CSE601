@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class MetricsCalculator:
     def __init__(self):
@@ -18,7 +19,7 @@ class MetricsCalculator:
             if int(test_data[i][prediction_value_index]) == predicted_values[i]:
                 correct_predictions += 1
 
-        accuracy = (correct_predictions/len(predicted_values))*100
+        accuracy = (correct_predictions/len(predicted_values))
         return accuracy
 
     '''
@@ -86,3 +87,12 @@ class MetricsCalculator:
     '''
     def calculate_F1_score(self, precision, recall):
         return 2 * ((precision * recall) / (precision + recall))
+
+    def plot_graph(self, accuracy_a, precision_a, recall_a):
+        plt.plot(accuracy_a, label ="Accuracy")
+        plt.plot(precision_a, label ="Precision")
+        plt.plot(recall_a, label ="Recall")
+        plt.xlabel('Iteration')
+        plt.ylabel('Accuracy')
+        plt.legend()
+        plt.show()
