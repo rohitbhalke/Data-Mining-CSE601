@@ -150,6 +150,16 @@ class RandomForest(DecisionTree):
         f1_score = metric_calculator.calculate_F1_score(precision, recall)
         print("F1 Score: ", f1_score)
 
+    def divide_data(self, data):
+        k = self.config['k_fold_validation']
+        no_of_records = int(data.shape[0] / k)
+        data_split = {}
+        for i in range(0,k-1):
+            start = i*no_of_records
+            end = start + no_of_records
+            data_split[i] = data[start:end]
+        data_split[i+1] = data[end:]
+        return data_split
 
     def process1(self, data):
         k = self.config['k_fold_validation']
