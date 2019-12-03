@@ -167,11 +167,23 @@ class NaiveBayesClassifier:
             print("Class: " + str(class_value) + " probability: " + str(prob))
         return probabilities
 
+    def calculate_class_posterior_probabilities(self, item, probabilities):
+        print("----Probability---")
+        print(item)
+        total = 0.0
+        class_posterior_probabilities = {}
+        for class_value,probability in probabilities.items():
+            total += probability
+        for class_value, probability in probabilities.items():
+            class_posterior_probabilities[class_value] = probability/total
+            print("Class: " + str(class_value) + " probability: " + str(class_posterior_probabilities.get(class_value)))
+
     # predict label for given data sample with highest P(Xi|H)*P(H)
     def predict(self, data, data_summary_continuous, data_summary_categorical, string_value_indexes):
         predictions = []
         for item in data:
             probabilities = self.calculate_probabilities_by_class(data_summary_continuous, data_summary_categorical, item, string_value_indexes)
+            # self.calculate_class_posterior_probabilities(item,probabilities)
             best_label, best_prob = None, -1
             for class_value, probability in probabilities.items():
                 if best_label is None or probability > best_prob:
@@ -197,6 +209,11 @@ class NaiveBayesClassifier:
         precision = 0.0
         recall = 0.0
         f1_score = 0.0
+        accuracy_array = []
+        precision_array = []
+        recall_array = []
+        f1_score_array = []
+
         for i in range(0,k):
             test_data = data_split[i]
             train_data = None
@@ -206,22 +223,34 @@ class NaiveBayesClassifier:
                         train_data = data_split[j]
                     else:
                         train_data = np.append(train_data,data_split[j], axis=0)
-            predicted_labels = self.classify(train_data,test_data,string_value_indexes)
+            predicted_values = self.classify(train_data,test_data,string_value_indexes)
 
             metric_calculator = MetricsCalculator()
-            accuracy += metric_calculator.calculate_accuracy(test_data, predicted_labels)
-            precision += metric_calculator.calculate_precision(test_data, predicted_labels)
-            recall += metric_calculator.calculate_recall(test_data, predicted_labels)
+            accuracy_array.append(metric_calculator.calculate_accuracy(test_data, predicted_values))
+            precision = metric_calculator.calculate_precision(test_data, predicted_values)
+            precision_array.append(precision)
+            recall = metric_calculator.calculate_recall(test_data, predicted_values)
+            recall_array.append(recall)
+            f1_score = metric_calculator.calculate_F1_score(precision, recall)
+            f1_score_array.append(f1_score)
+            self.attribute_indexex = []
 
-        accuracy = float(accuracy/k)
-        precision = float(precision/k)
-        recall = float(recall/k)
-        f1_score = metric_calculator.calculate_F1_score(precision, recall)
+        accuracy = float(sum(accuracy_array) / k)
+        precision = float(sum(precision_array) / k)
+        recall = float(sum(recall_array) / k)
+        f1_score = float(sum(f1_score_array) / k)
 
+        print("K-Fold Accuracies: ", '[%s]' % ', '.join(map(str, accuracy_array)))
+        print("K-Fold Precision: ", '[%s]' % ', '.join(map(str, precision_array)))
+        print("K-Fold Recall: ", '[%s]' % ', '.join(map(str, recall_array)))
+        print("")
         print("Accuracy: " + str(accuracy))
         print("Precision: " + str(precision))
         print("Recall: " + str(recall))
         print("F1 Score: " + str(f1_score))
+
+        metric_calculator.plot_graph(accuracy_array, precision_array, recall_array)
+
 
     def process_demo(self, data):
         train_samples = self.config['demo_train_samples']
