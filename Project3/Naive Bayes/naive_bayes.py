@@ -21,8 +21,16 @@ class NaiveBayesClassifier:
     # preprocessing input features
     def convert_values_to_floats(self, data, index):
         attribute_values = data[:, index]
-        attribute_values = set(attribute_values)  # got unique values
-        attribute_values = list(attribute_values)
+        attrb_set = []
+
+        for val in attribute_values:
+            if val not in attrb_set:
+                attrb_set.append(val)
+
+        # attribute_values = set(attribute_values)  # got unique values
+        # attribute_values = list(attribute_values)
+
+        attribute_values = attrb_set
 
         string_float_map = {}
         counter = 0
