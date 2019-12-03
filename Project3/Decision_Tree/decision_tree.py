@@ -10,6 +10,7 @@ class DecisionTree:
     def __init__(self):
         self.attribute_indexex = []
         self.COUNT = 10
+        self.categorical_columns_index = []
 
     def read_file(self, path):
         data = []
@@ -22,23 +23,23 @@ class DecisionTree:
         data = np.array(data)
         return data
 
-    # def divide_data(self, data):
-    #     train_data_percent = self.config['training_percentage']
-    #     no_of_records = int(data.shape[0] * (train_data_percent/100))
-    #     train_data = data[0:no_of_records]
-    #     test_data = data[no_of_records:]
-    #     return train_data, test_data
+    def divide_data(self, data):
+        train_data_percent = self.config['training_percentage']
+        no_of_records = int(data.shape[0] * (train_data_percent/100))
+        train_data = data[0:no_of_records]
+        test_data = data[no_of_records:]
+        return train_data, test_data
 
-    def divide_data(self,data):
-        k = self.config['k_fold_validation']
-        no_of_records = int(data.shape[0] / k)
-        data_split = {}
-        for i in range(0,k-1):
-            start = i*no_of_records
-            end = start + no_of_records
-            data_split[i] = data[start:end]
-        data_split[i+1] = data[end:]
-        return data_split
+    # def divide_data(self,data):
+    #     k = self.config['k_fold_validation']
+    #     no_of_records = int(data.shape[0] / k)
+    #     data_split = {}
+    #     for i in range(0,k-1):
+    #         start = i*no_of_records
+    #         end = start + no_of_records
+    #         data_split[i] = data[start:end]
+    #     data_split[i+1] = data[end:]
+    #     return data_split
 
     def get_gini_index(self, data):
         # find from data, how many are 1's and 0's,
@@ -78,10 +79,16 @@ class DecisionTree:
         greater_than_attr_value = []
 
         for record in data:
-            if float(record[attribute_index]) <= val:
-                less_than_attr_value.append(record)
+            if attribute_index in self.categorical_columns_index:
+                if float(record[attribute_index]) == val:
+                    less_than_attr_value.append(record)
+                else:
+                    greater_than_attr_value.append(record)
             else:
-                greater_than_attr_value.append(record)
+                if float(record[attribute_index]) <= val:
+                    less_than_attr_value.append(record)
+                else:
+                    greater_than_attr_value.append(record)
 
         return np.array(less_than_attr_value), np.array(greater_than_attr_value)
 
@@ -98,8 +105,8 @@ class DecisionTree:
             less_than_data, great_than_data = self.categorise_data(data, val, attribute_index)
             gini_index_lesser_values = self.get_gini_index(less_than_data)
             gini_index_great_values = self.get_gini_index(great_than_data)
-
-            gini_children = less_than_data.shape[0] * gini_index_lesser_values + great_than_data.shape[0] *  gini_index_great_values
+            total_records = data.shape[0]
+            gini_children = ((less_than_data.shape[0]/data.shape[0]) * gini_index_lesser_values) + ((great_than_data.shape[0]/data.shape[0]) *  gini_index_great_values)
             gini_gain = gini_index_dataset - gini_children
 
             if gini_gain > maximum_gini_gain:
@@ -125,6 +132,7 @@ class DecisionTree:
                     best_attribute_value = categorical_value
 
         print("Best Attribute:", best_attribute_index)
+        print("Gini Value::", gini_index_dataset - maximum_gini_gain)
         return best_attribute_index, best_attribute_value
 
     def create_decision_tree(self, train_data):
@@ -137,7 +145,7 @@ class DecisionTree:
 
 
         gini_index_dataset = self.get_gini_index(train_data)
-        # print("gini_index : ", gini_index_dataset)
+        print("gini_index of parent: ", gini_index_dataset)
 
         if gini_index_dataset == 0.0:
             leaf_node = Node(None, None)
@@ -203,14 +211,24 @@ class DecisionTree:
 
     def convert_values_to_floats(self, data, index):
         attribute_values = data[:, index]
-        attribute_values = set(attribute_values)  # got unique values
-        attribute_values = list(attribute_values)
+        attrb_set = []
+
+        for val in attribute_values:
+            if val not in attrb_set:
+                attrb_set.append(val)
+
+        # attribute_values = set(attribute_values)  # got unique values
+        # attribute_values = list(attribute_values)
+
+        attribute_values = attrb_set
 
         string_float_map = {}
         counter = 0
         for value in attribute_values:
             string_float_map[value] = float(counter)
+            print(value, "   ", counter)
             counter += 1
+
 
         # now map these values to the original data
         for record in data:
@@ -232,6 +250,7 @@ class DecisionTree:
 
         # got all the index attributes which are strings, now convert them to floats
         for index in string_value_indexex:
+            self.categorical_columns_index.append(index)
             data = self.convert_values_to_floats(data, index)
 
         return data
@@ -260,6 +279,8 @@ class DecisionTree:
     def print_tree(self, root):
         print("######################## DECISON TREE ########################")
         self.print_tree_util(root, 0)
+
+
 
     def process(self, data):
         k = self.config['k_fold_validation']
@@ -328,6 +349,25 @@ class DecisionTree:
         # f1_score = metric_calculator.calculate_F1_score(precision, recall)
         # print("F1 Score: ", f1_score)
 
+    def process_full(self, data):
+        data = self.preprocess(data)
+        train_data, test_data = self.divide_data(data)
+        root = self.create_decision_tree(train_data)
+        print("Here")
+        self.print_tree(root)
+
+        predicted_values = self.predict_test_output(root, test_data)
+
+        # metric_calculator = MetricsCalculator()
+        # accuracy = metric_calculator.calculate_accuracy(test_data, predicted_values)
+        # print("Accuracy: ", accuracy)
+        # precision = metric_calculator.calculate_precision(test_data, predicted_values)
+        # print("Precision: ", precision)
+        # recall = metric_calculator.calculate_recall(test_data, predicted_values)
+        # print("Recall: ", recall)
+        # f1_score = metric_calculator.calculate_F1_score(precision, recall)
+        # print("F1 Score: ", f1_score)
+
 
 def main():
     dt_classifier = DecisionTree()
@@ -335,7 +375,7 @@ def main():
         config = json.load(f)
     dt_classifier.config = config
     data = dt_classifier.read_file(dt_classifier.config['input_file'])
-    dt_classifier.process(data)
+    dt_classifier.process_full(data)
 
 if __name__ == '__main__':
     main()
